@@ -4,10 +4,6 @@ import logging
 import requests
 from logging.handlers import RotatingFileHandler
 
-headers = {
-    'Content-Type': 'application/json',
-}
-
 
 class Navixy:
     def __init__(self):
@@ -17,6 +13,11 @@ class Navixy:
 
     def auth(self):
         logger.info(f'logging in to navixy account with {self.username}')
+
+        headers = {
+            'Content-Type': 'application/json',
+        }
+
         data = {
             'login': self.username,
             'password': self.password
