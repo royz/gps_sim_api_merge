@@ -1,4 +1,7 @@
+import json
 import sys
+from pprint import pprint
+
 import config
 import logging
 import requests
@@ -6,6 +9,8 @@ from logging.handlers import RotatingFileHandler
 
 
 class Navixy:
+    API_BASE = 'https://api.navixy.com/v2'
+
     def __init__(self):
         self.username = config.navixy_username
         self.password = config.navixy_password
@@ -23,12 +28,31 @@ class Navixy:
             'password': self.password
         }
         try:
-            response = requests.post('https://api.navixy.com/v2/user/auth', headers=headers, json=data).json()
+            response = requests.post(f'{self.API_BASE}/user/auth', headers=headers, json=data).json()
             if response['success']:
                 self.user_hash = response['hash']
                 logger.info('logged into navixy account')
         except Exception as e:
             logger.critical(e)
+
+    def get_tracker_list(self):
+        if not self.user_hash:
+            self.auth()
+
+        headers = {
+            'Content-Type': 'application/json',
+        }
+
+        data = {
+            'hash': self.user_hash
+        }
+
+        response = requests.post(f'{self.API_BASE}/tracker/list', headers=headers, json=data)
+
+        with open('trackers.json', 'w', encoding='utf-8') as f:
+            json.dump(response.json(), f)
+
+        pprint(response.json())
 
 
 if __name__ == '__main__':
@@ -48,4 +72,4 @@ if __name__ == '__main__':
     logger = logging.getLogger()
 
     navixy = Navixy()
-    navixy.auth()
+    navixy.get_tracker_list()
