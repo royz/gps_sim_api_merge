@@ -1,11 +1,12 @@
 import json
 import sys
 from pprint import pprint
-
 import config
 import logging
 import requests
 from logging.handlers import RotatingFileHandler
+import http.client
+from bs4 import BeautifulSoup
 
 
 class Navixy:
@@ -55,6 +56,38 @@ class Navixy:
         pprint(response.json())
 
 
+class ThingsMobile:
+    BASE_URL = 'https://www.thingsmobile.com/services/business-api'
+
+    def __init__(self, username=None, token=None):
+        self.username = username or config.things_mobile_username
+        self.token = token or config.things_mobile_token
+        print(self.username)
+        print(self.token)
+
+    def sim_status(self, sim_number: str) -> bool:
+        try:
+            connection = http.client.HTTPSConnection('www.thingsmobile.com')
+            payload = f'username={self.username}&token={self.token}&msisdn={sim_number}'
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+            connection.request("POST", "/services/business-api/simStatus", payload, headers)
+            response = connection.getresponse()
+            data = response.read().decode('utf-8')
+            soup = BeautifulSoup(data, 'lxml-xml')
+            return soup.find('status').text == 'active'
+        except Exception as e:
+            logger.error(e)
+            logger.error(f'failed to retrieve information for {sim_number}')
+
+    def block_sim(self):
+        pass
+
+    def unblock_sim(self):
+        pass
+
+
 if __name__ == '__main__':
     logging.basicConfig(
         level=logging.DEBUG,
@@ -71,5 +104,9 @@ if __name__ == '__main__':
     # logging.getLogger(aiohttp.__name__).setLevel(logging.ERROR)
     logger = logging.getLogger()
 
-    navixy = Navixy()
-    navixy.get_tracker_list()
+    # navixy = Navixy()
+    # navixy.get_tracker_list()
+
+    things_mobile = ThingsMobile()
+    status = things_mobile.sim_status('882360012774864')
+    print(status)
