@@ -81,11 +81,37 @@ class ThingsMobile:
             logger.error(e)
             logger.error(f'failed to retrieve information for {sim_number}')
 
-    def block_sim(self):
-        pass
+    def block_sim(self, sim_number: str = '882360012289512') -> bool:
+        try:
+            connection = http.client.HTTPSConnection('www.thingsmobile.com')
+            payload = f'username={self.username}&token={self.token}&msisdn={sim_number}'
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+            connection.request("POST", "/services/business-api/blockSim", payload, headers)
+            response = connection.getresponse()
+            data = response.read().decode('utf-8')
+            soup = BeautifulSoup(data, 'lxml-xml')
+            return soup.find('done').text == 'true'
+        except Exception as e:
+            logger.error(e)
+            logger.error(f'failed to block sim: {sim_number}')
 
-    def unblock_sim(self):
-        pass
+    def unblock_sim(self, sim_number: str = '882360012289512') -> bool:
+        try:
+            connection = http.client.HTTPSConnection('www.thingsmobile.com')
+            payload = f'username={self.username}&token={self.token}&msisdn={sim_number}'
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+            connection.request("POST", "/services/business-api/unblockSim", payload, headers)
+            response = connection.getresponse()
+            data = response.read().decode('utf-8')
+            soup = BeautifulSoup(data, 'lxml-xml')
+            return soup.find('done').text == 'true'
+        except Exception as e:
+            logger.error(e)
+            logger.error(f'failed to unblock sim: {sim_number}')
 
 
 if __name__ == '__main__':
@@ -108,5 +134,5 @@ if __name__ == '__main__':
     # navixy.get_tracker_list()
 
     things_mobile = ThingsMobile()
-    status = things_mobile.sim_status('882360012774864')
+    status = things_mobile.unblock_sim('882360012774864')
     print(status)
