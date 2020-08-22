@@ -2,8 +2,16 @@
 
 ```python
 # Navixy config
-navixy_username = ''
-navixy_password = ''
+navixy_accounts = [
+    {
+        'username': 'username1@email.com',
+        'password': 'passwd'
+    },
+    {
+        'username': 'username2@email.com',
+        'password': 'passwd'
+    },
+]
 
 # Things Mobile Config
 things_mobile_username = ''
