@@ -1,13 +1,11 @@
-import json
 import sys
 import time
-from pprint import pprint
 import config
 import logging
 import requests
-from logging.handlers import RotatingFileHandler
 import http.client
 from bs4 import BeautifulSoup
+from logging.handlers import RotatingFileHandler
 
 
 class Navixy:
