@@ -11,9 +11,9 @@ from bs4 import BeautifulSoup
 
 
 class Navixy:
-    def __init__(self):
-        self.username = config.navixy_username
-        self.password = config.navixy_password
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
         self.user_hash = None
 
     def auth(self):
@@ -134,7 +134,7 @@ def get_error_str(err: Exception):
 if __name__ == '__main__':
     # configure the logger
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
         handlers=(
             RotatingFileHandler(
@@ -147,15 +147,17 @@ if __name__ == '__main__':
     )
     logger = logging.getLogger()
 
-    navixy = Navixy()
     things_mobile = ThingsMobile()
 
     while True:
         try:
             trackers_fetch_time = time.time()
             # get navixy trackers list
+            trackers_list = []
+            for navixy_account in config.navixy_accounts:
+                navixy = Navixy(navixy_account['username'], navixy_account['password'])
+                trackers_list.extend(navixy.get_tracker_list())
 
-            trackers_list = navixy.get_tracker_list()
             if not trackers_list:
                 # sleep for 30 minutes and try again
                 time.sleep(1800)
