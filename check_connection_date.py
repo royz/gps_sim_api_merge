@@ -1,6 +1,9 @@
 import datetime
 import sys
 import time
+
+import pytz
+
 import config
 import logging
 import requests
@@ -144,10 +147,10 @@ if __name__ == '__main__':
     for navixy_number in navixy_numbers:
         last_date = things_mobile.check_last_connection_date(navixy_number)
         if last_date:
-
             last_date_object = datetime.datetime.strptime(last_date, '%Y-%m-%d %H:%M:%S')
+            last_date_object = last_date_object.replace(tzinfo=datetime.timezone.utc)
             formatted_last_date = last_date_object.strftime('%d %b, %Y %H:%M:%S')
-            time_delta = datetime.datetime.now() - last_date_object
+            time_delta = datetime.datetime.now(tz=datetime.timezone.utc) - last_date_object
             logger.info(f'last connection date of {navixy_number}: {formatted_last_date} [{time_delta.days} days ago]')
             if time_delta > datetime.timedelta(days=28):
                 logger.info(f'{navixy_number} had last connection more than 28 days ago. notifying...')
