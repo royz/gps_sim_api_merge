@@ -1,9 +1,6 @@
 import datetime
 import sys
 import time
-
-import pytz
-
 import config
 import logging
 import requests
