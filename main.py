@@ -85,12 +85,13 @@ class ThingsMobile:
             connection.request("POST", "/services/business-api/simStatus", payload, headers)
             response = connection.getresponse()
             data = response.read().decode('utf-8')
+            # with open('sim_status2.xml', 'w') as f:
+            #     f.write(data)
             soup = BeautifulSoup(data, 'lxml-xml')
             return soup.find('status').text == 'active'
         except Exception as e:
             logger.error(get_error_str(e))
             logger.error(f'failed to retrieve information for {sim_number}')
-            return None
 
     def block_sim(self, sim_number: str = '882360012289512') -> bool:
         try:
@@ -102,7 +103,7 @@ class ThingsMobile:
             connection.request("POST", "/services/business-api/blockSim", payload, headers)
             response = connection.getresponse()
             data = response.read().decode('utf-8')
-            soup = BeautifulSoup(data, 'lxml-xml')
+            soup = BeautifulSoup(data, 'xml')
             return soup.find('done').text == 'true'
         except Exception as e:
             logger.error(e)
@@ -171,9 +172,12 @@ if __name__ == '__main__':
 
                 # check status on things mobile for this sim
                 things_mobile_status = things_mobile.sim_status(tracker['sim_number'])
+                logger.info(f'sleeping for {120} sec')
+                time.sleep(120)
 
                 if things_mobile_status is None:
                     # sleep for 2 minutes and continue to next tracker
+                    logger.info(f'sleeping for {120} sec')
                     time.sleep(120)
                     continue
 
