@@ -133,6 +133,8 @@ def get_error_str(err: Exception):
 
 
 if __name__ == '__main__':
+    THINGS_MOBILE_REQUEST_TIME = 30
+
     # configure the logger
     logging.basicConfig(
         level=logging.INFO,
@@ -160,8 +162,8 @@ if __name__ == '__main__':
                 trackers_list.extend(navixy.get_tracker_list())
 
             if not trackers_list:
-                # sleep for 5 minutes and try again
-                time.sleep(300)
+                # sleep for 2 minutes and try again
+                time.sleep(120)
                 continue
             else:
                 logger.info(f'{len(trackers_list)} trackers found from Navixy')
@@ -173,8 +175,8 @@ if __name__ == '__main__':
 
                 # check status on things mobile for this sim
                 things_mobile_status = things_mobile.sim_status(tracker['sim_number'])
-                logger.info(f'sleeping for {30} sec')
-                time.sleep(30)
+                logger.info(f'sleeping for {THINGS_MOBILE_REQUEST_TIME} seconds...')
+                time.sleep(THINGS_MOBILE_REQUEST_TIME)
 
                 if things_mobile_status is None:
                     # continue to next tracker
@@ -189,8 +191,8 @@ if __name__ == '__main__':
                             logger.info(f"[{tracker['sim_number']}] was successfully blocked")
                         else:
                             logger.error(f"could not block [{tracker['sim_number']}]")
-                        logger.info('sleeping for 30 seconds...')
-                        time.sleep(30)
+                        logger.info(f'sleeping for {THINGS_MOBILE_REQUEST_TIME} seconds...')
+                        time.sleep(THINGS_MOBILE_REQUEST_TIME)
                     else:
                         # when sim and gps both active: do nothing
                         logger.info(f"[{tracker['sim_number']}] status:  sim and gps both active")
@@ -206,7 +208,7 @@ if __name__ == '__main__':
                             logger.info(f"[{tracker['sim_number']}] was successfully unblocked")
                         else:
                             logger.error(f"could not unblock [{tracker['sim_number']}]")
-                        logger.info('sleeping for 30 seconds...')
-                        time.sleep(30)
+                        logger.info(f'sleeping for {THINGS_MOBILE_REQUEST_TIME} seconds...')
+                        time.sleep(THINGS_MOBILE_REQUEST_TIME)
         except Exception as e:
             logger.critical(get_error_str(e))
