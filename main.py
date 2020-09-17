@@ -1,3 +1,4 @@
+import json
 import sys
 import time
 import config
@@ -51,6 +52,7 @@ class Navixy:
                                      headers=headers, json=data)
             try:
                 json_response = response.json()
+
                 if json_response['success']:
                     return [{
                         'sim_number': tracker['source']['phone'],
@@ -158,27 +160,24 @@ if __name__ == '__main__':
                 trackers_list.extend(navixy.get_tracker_list())
 
             if not trackers_list:
-                # sleep for 30 minutes and try again
-                time.sleep(1800)
+                # sleep for 5 minutes and try again
+                time.sleep(300)
                 continue
             else:
                 logger.info(f'{len(trackers_list)} trackers found from Navixy')
 
             # for each tracker check status and block or unblock
             # the sim depending on the Navixy blocked status.
-            # also wait 5 minutes between each sim/tracker request
             for tracker in trackers_list:
                 tracker_loop_start = time.time()
 
                 # check status on things mobile for this sim
                 things_mobile_status = things_mobile.sim_status(tracker['sim_number'])
-                logger.info(f'sleeping for {120} sec')
-                time.sleep(120)
+                logger.info(f'sleeping for {30} sec')
+                time.sleep(30)
 
                 if things_mobile_status is None:
-                    # sleep for 2 minutes and continue to next tracker
-                    logger.info(f'sleeping for {120} sec')
-                    time.sleep(120)
+                    # continue to next tracker
                     continue
 
                 elif things_mobile_status is True:
@@ -190,6 +189,8 @@ if __name__ == '__main__':
                             logger.info(f"[{tracker['sim_number']}] was successfully blocked")
                         else:
                             logger.error(f"could not block [{tracker['sim_number']}]")
+                        logger.info('sleeping for 30 seconds...')
+                        time.sleep(30)
                     else:
                         # when sim and gps both active: do nothing
                         logger.info(f"[{tracker['sim_number']}] status:  sim and gps both active")
@@ -205,19 +206,7 @@ if __name__ == '__main__':
                             logger.info(f"[{tracker['sim_number']}] was successfully unblocked")
                         else:
                             logger.error(f"could not unblock [{tracker['sim_number']}]")
-
-                # sleep for some time so that the inner loop takes 5 minutes in total
-                time_taken = time.time() - tracker_loop_start
-                if time_taken < config.inner_loop_time:
-                    time_to_sleep = config.inner_loop_time - time_taken
-                    logger.info(f'sleeping for {round(time_to_sleep)} sec')
-                    time.sleep(time_to_sleep)
-
-            # sleep for some time so that the outer loop takes 2 hours in total
-            time_taken = time.time() - trackers_fetch_time
-            if time_taken < config.outer_loop_time:
-                time_to_sleep = config.outer_loop_time - time_taken
-                logger.info(f'sleeping for {round(time_to_sleep)} sec')
-                time.sleep(time_to_sleep)
+                        logger.info('sleeping for 30 seconds...')
+                        time.sleep(30)
         except Exception as e:
             logger.critical(get_error_str(e))
