@@ -133,7 +133,7 @@ def get_error_str(err: Exception):
 
 
 if __name__ == '__main__':
-    THINGS_MOBILE_REQUEST_TIME = 30
+    THINGS_MOBILE_REQUEST_TIME = 6
 
     # configure the logger
     logging.basicConfig(
